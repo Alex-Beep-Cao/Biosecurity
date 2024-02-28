@@ -68,7 +68,7 @@ def login(): \
                 session['username'] = account[1]
                 session['position_type_id'] = account[4]
                 # Redirect to home page
-                return redirect(url_for('home'))
+                return redirect(url_for('display'))
             else:
                 # password incorrect
                 msg = 'Incorrect password!'
@@ -126,9 +126,34 @@ def register():
                 'SELECT apiarist_id FROM apiarist WHERE username = %s', (username,))
             apiarist_id = cursor.fetchone()
             cursor.execute('INSERT INTO users VALUES (%s, %s, %s, %s, %s)',
-                           (apiarist_id, username, hashed, email, 1,))
+                           (apiarist_id[0], username, hashed, email, 1,))
 
             connection.commit()
             msg = 'You have successfully registered!'
+            return redirect(url_for('login'))
 
     return render_template("register.html", msg=msg)
+
+
+@app.route('/display', methods=['GET', 'POST'])
+def display():
+    user_id = session['id']
+    position_type_id = session['position_type_id']
+    personal_details = ''
+    cursor = getCursor()
+    if position_type_id == 1:
+        cursor.execute(
+            'SELECT * FROM apiarist WHERE apiarist_id = %s', (user_id,))
+        personal_details = cursor.fetchone()
+    else:
+        cursor.execute(
+            'SELECT * FROM employee WHERE employee_id = %s and position_type_id = %s', (user_id, position_type_id,))
+        personal_details = cursor.fetchone()
+    connection.commit()
+    return render_template("display.html", personal_details=personal_details)
+
+
+@app.route('/logout')
+def logout():
+    session.pop('Username', None)
+    return redirect(url_for('home'))
