@@ -68,7 +68,8 @@ def login(): \
                 session['username'] = account[1]
                 session['position_type_id'] = account[4]
                 # Redirect to home page
-                return redirect(url_for('display'))
+                if account[4] == 1:
+                    return redirect(url_for('apiaristdisplay'))
             else:
                 # password incorrect
                 msg = 'Incorrect password!'
@@ -119,7 +120,7 @@ def register():
             # Account doesnt exists and the form data is valid, now insert new account into accounts table
             hashed = hashing.hash_value(password, salt='alex')
             cursor.execute(
-                'INSERT INTO apiarist VALUES (NULL, %s, %s, %s,%s, %s,%s ,%s, %s,%s ,%s)', (username, firstname, lastname, hashed, address, email, phone, date.today(), True, 1))
+                'INSERT INTO apiarist VALUES (NULL, %s, %s, %s,%s, %s,%s ,%s, %s,%s ,%s)', (username, firstname, lastname, password, address, email, phone, date.today(), True, 1))
 
             # Add register infromation into users table
             cursor.execute(
@@ -135,22 +136,67 @@ def register():
     return render_template("register.html", msg=msg)
 
 
-@app.route('/display', methods=['GET', 'POST'])
-def display():
-    user_id = session['id']
-    position_type_id = session['position_type_id']
-    personal_details = ''
-    cursor = getCursor()
-    if position_type_id == 1:
+@app.route('/apiaristdisplay', methods=['GET', 'POST'])
+def apiaristdisplay():
+    msg = ''
+    if request.method == 'POST':
+        user_id = session['id']
+        cursor = getCursor()
         cursor.execute(
             'SELECT * FROM apiarist WHERE apiarist_id = %s', (user_id,))
-        personal_details = cursor.fetchone()
+        account = cursor.fetchone()
+
+        firstname = request.form['firstname'] if request.form['firstname'] != '' else account[2]
+        lastname = request.form['lastname'] if request.form['lastname'] != '' else account[3]
+        password = request.form['password'] if request.form['password'] != '' else account[4]
+        address = request.form['address'] if request.form['address'] != '' else account[5]
+        email = request.form['email'] if request.form['email'] != '' else account[6]
+        phone = request.form['phone'] if request.form['phone'] != '' else account[7]
+
+        # If account exists show error and validation checks
+        if not account:
+            msg = 'Account not exists!'
+        elif not re.match(r'[^@]+@[^@]+\.[^@]+', email):
+            msg = 'Invalid email address!'
+        # elif not len(password) > 8:
+        #     msg = 'Password must be at least 8 characters long!'
+        # elif not re.search(r'[A-Z]', password):
+        #     msg = 'Password must contain at least one uppercase letter!'
+        # elif not re.search(r'[a-z]', password):
+        #     msg = 'Password must contain at least one lowercase letter!'
+        # elif not re.search(r'[0-9]', password):
+        #     msg = 'Password must contain at least one digit!'
+        # elif not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
+        #     msg = 'Password must contain at least one special character!'
+        else:
+            hashed = hashing.hash_value(password, salt='alex')
+            cursor.execute(
+                'UPDATE apiarist SET first_name = %s, last_name = %s, plain_password = %s, address = %s, email = %s, phone_number = %s WHERE apiarist_id = %s', (firstname, lastname, password, address, email, phone, user_id))
+            cursor.execute(
+                'UPDATE users SET hashed_password= %s, email=%s WHERE user_id = %s', (
+                    hashed, email, user_id)
+            )
+            personal_details = [account[1], firstname,
+                                lastname, address, email, phone]
+            msg = " Updated"
+
+        return render_template("apiaristdisplay.html", personal_details=personal_details, msg=msg)
     else:
-        cursor.execute(
-            'SELECT * FROM employee WHERE employee_id = %s and position_type_id = %s', (user_id, position_type_id,))
-        personal_details = cursor.fetchone()
-    connection.commit()
-    return render_template("display.html", personal_details=personal_details)
+        msg = ''
+        user_id = session['id']
+        position_type_id = session['position_type_id']
+        personal_details = ''
+        cursor = getCursor()
+        if position_type_id == 1:
+            cursor.execute(
+                'SELECT * FROM apiarist WHERE apiarist_id = %s', (user_id,))
+            personal_details = cursor.fetchone()
+        else:
+            cursor.execute(
+                'SELECT * FROM employee WHERE employee_id = %s and position_type_id = %s', (user_id, position_type_id,))
+            personal_details = cursor.fetchone()
+        connection.commit()
+        return render_template("apiaristdisplay.html", personal_details=personal_details msg=msg)
 
 
 @app.route('/logout')

@@ -7,7 +7,7 @@
 <h3 class="container mt-1">
     <span class="badge bg-dark"> HI, {{personal_details[1]}} Welcome back.</span>
 </h3>
-
+<span class="badge bg-dark"> {{msg}}.</span>
 <section style="background-color: #eee;">
     <div class="container py-5">
         <div class="col-lg-8">
@@ -61,10 +61,11 @@
                 </div>
               </div>
               <hr>
-              <div class="d-flex justify-content-center mx-4 mb-3 mb-lg-4">
-                <button type="submit" class="btn btn-primary" >Update</button>
-                <a href="" class="btn btn-default btn-rounded mb-4" data-toggle="modal" data-target="#modalLoginForm">Launch
-                    Modal Login Form</a>
+              <div class="d-flex justify-content-center">
+                <button type="button" class="btn btn-primary mx-auto d-block mt-2" data-bs-toggle="modal" data-bs-target="#modalForm">
+                 Update personal infomation
+              </button>
+              
             </div>
             </div>
           </div>
@@ -73,35 +74,49 @@
     </div>
     
   </section>
-  <!-- Click on Modal Button -->
-<button type="button" class="btn btn-primary mx-auto d-block mt-5" data-bs-toggle="modal" data-bs-target="#modalForm">
-    Bootstrap Modal popup
-</button>
+
 
 <!-- Modal -->
 <div class="modal fade" id="modalForm" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Bootstrap 5 Modal Form</h5>
+                <h5 class="modal-title" id="exampleModalLabel">Edit Personal infomation</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form>
+                <form method="POST" action = "/apiaristdisplay">
+                    <div class="mb-3">
+                      <label class="form-label">First Name</label>
+                      <input type="text" class="form-control" id="firstname" name="firstname" placeholder="Firstname" />
+                    </div>
+
+                    <div class="mb-3">
+                      <label class="form-label">Last Name</label>
+                      <input type="text" class="form-control" id="lastname" name="lastname" placeholder="Lastname" />
+                    </div>
+
+                    <div class="mb-3">
+                    <label class="form-label">Address</label>
+                    <input type="text" class="form-control" id="address" name="address" placeholder="Address" />
+                    </div>
+
                     <div class="mb-3">
                         <label class="form-label">Email Address</label>
-                        <input type="text" class="form-control" id="username" name="username" placeholder="Username" />
+                        <input type="text" class="form-control" id="email" name="email" placeholder="Email" />
                     </div>
+
+                    <div class="mb-3">
+                      <label class="form-label">Phone</label>
+                      <input type="text" class="form-control" id="phone" name="phone" placeholder="Phone" />
+                    </div>
+
                     <div class="mb-3">
                         <label class="form-label">Password</label>
                         <input type="password" class="form-control" id="password" name="password" placeholder="Password" />
                     </div>
-                    <div class="mb-3 form-check">
-                        <input type="checkbox" class="form-check-input" id="rememberMe" />
-                        <label class="form-check-label" for="rememberMe">Remember me</label>
-                    </div>
+                   
                     <div class="modal-footer d-block">
-                        <p class="float-start">Not yet account <a href="#">Sign Up</a></p>
                         <button type="submit" class="btn btn-warning float-end">Submit</button>
                     </div>
                 </form>
