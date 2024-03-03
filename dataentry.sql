@@ -13,6 +13,45 @@ Insert into position_type
  (3, 'admin');
  
  select * from  apiarist ;
+  select * from  employee ;
+   select * from  users ;
 Insert into apiarist 
 values
 (NULL, 'alex_cao_a', 'alex', 'cao', 'alex', '111 queen street', 'alex.cao@lincolnuni.ac.nz', '022-0101001', '2024-01-01', true, 1);
+Insert into apiarist 
+values
+(NULL, 'alex_cao_b', 'alex', 'cao', 'alex', '111 queen street', 'alex.cao@lincolnuni.ac.nz', '022-0101001', '2024-01-01', true, 1);
+
+delete from apiarist where apiarist_id = 1;
+
+delete from users where user_id = 1 and position_type_id = 1;
+
+Insert into users 
+values
+(1,'alex_cao_a', 'f001722cdd7f9371daedf315af63a5ffed19ea84a3788bbe7e7069c3ae11f4d0', 'alex.cao@lincolnuni.ac.nz', 1);
+Insert into users 
+values
+(2,'alex_cao_b', 'f001722cdd7f9371daedf315af63a5ffed19ea84a3788bbe7e7069c3ae11f4d0', 'alex.cao@lincolnuni.ac.nz', 1);
+
+Insert into position_type
+ values
+ (1, 'apiarist'),
+ (2, 'staff'),
+ (3, 'admin');
+ 
+select * from  apiarist ;
+select * from  users ;
+
+Insert into apiarist 
+values
+(NULL, 'alex_cao_a', 'alex', 'cao', 'alex', '111 queen street', 'alex.cao@lincolnuni.ac.nz', '022-0101001', '2024-01-01', true, 1);
+
+Insert into users 
+values
+(1,'ac_admin', 'd9508122cd143d69df229bf3624b7bcb2b8ac81ed210a0c926455ef119c12abd', 'alex.cao@lincolnuni.ac.nz', 2);
+
+
+Insert into employee 
+values
+(NULL, 'ac_admin','alex', 'cao', '123',  'alex.cao@lincolnuni.ac.nz', '022-0101001', '2024-01-01', 'Teach', true , 2);
+

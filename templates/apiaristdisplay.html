@@ -1,13 +1,10 @@
 {% extends "base.html" %}
 {% block content %}
 
-
-<div> {{personal_details.id}}</div>
-<div> {{personal_details.position_type_id}}</div>
 <h3 class="container mt-1">
     <span class="badge bg-dark"> HI, {{personal_details[1]}} Welcome back.</span>
 </h3>
-<span class="badge bg-dark"> {{msg}}.</span>
+<span> {{msg}}</span>
 <section style="background-color: #eee;">
     <div class="container py-5">
         <div class="col-lg-8">
@@ -71,17 +68,19 @@
           </div>
         </div>
       </div>
+     
+      </div>
     </div>
     
   </section>
 
 
 <!-- Modal -->
-<div class="modal fade" id="modalForm" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" id="modalForm" tabindex="-1" aria-labelledby="apiaristModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Edit Personal infomation</h5>
+                <h5 class="modal-title" id="apiaristModalLabel">Edit Personal infomation</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
