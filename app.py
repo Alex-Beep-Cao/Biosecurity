@@ -11,6 +11,7 @@ from mysql.connector import FieldType
 import connect
 from flask_hashing import Hashing
 from datetime import date
+import base64
 
 app = Flask(__name__)
 hashing = Hashing(app)
@@ -254,8 +255,12 @@ def staffdisplay():
             personal_details = [account[1], firstname,
                                 lastname, email, phone, department]
             msg = " Updated"
+            cursor.execute(
+                'SELECT apiarist_id, username, first_name, last_name, plain_password,address, email, phone_number, date_joined, employee_status FROM apiarist'
+            )
+            apiarist_detail = cursor.fetchall()
 
-        return render_template("staffdisplay.html", personal_details=personal_details, msg=msg)
+        return render_template("staffdisplay.html", personal_details=personal_details, apiarist_detail=apiarist_detail, msg=msg)
     else:
         msg = ''
         user_id = session['id']
@@ -875,7 +880,156 @@ def adminaddstaff():
     return render_template("admindisplay.html", personal_details=personal_details, apiarist_detail=apiarist_detail, staff_detail=staff_detail, msg=msg)
 
 
-@app.route('/logout')
+@app.route('/guide', methods=['GET', 'POST'])
+@app.route('/guide/<photoId>', methods=['GET', 'POST'])
+def viewguide(photoId=None):
+
+    position_type_id = session['position_type_id']
+
+    cursor = getCursor()
+
+    bees = []
+    processedImages = []
+
+    msg = ''
+
+    if request.method == 'POST':
+        beetype = request.form['beetype']
+        present = request.form['present']
+        if present == 1:
+            presentvalue = True
+        else:
+            presentvalue = False
+        commonname = request.form['commonname']
+        scientificname = request.form['scientificname']
+        keycharacteristics = request.form['keycharacteristics']
+        biology = request.form['biology']
+        symptoms = request.form['symptoms']
+        file = request.files['image']
+
+        if file:
+            image_data = file.read()
+            try:
+                cursor.execute(
+                    'INSERT INTO image VALUES (NULL, %s, True)', (image_data,))
+
+                cursor.execute(
+                    'SELECT max(image_id) FROM image where primary_image = true')
+
+                image_id = cursor.fetchone()
+                try:
+                    cursor.execute(
+                        'INSERT INTO bee VALUES (NULL, %s, %s, %s, %s, %s, %s, %s, %s)', (beetype, presentvalue, commonname, scientificname, keycharacteristics, biology, symptoms, image_id[0]))
+
+                    msg = "Bee added successfully!"
+                except:
+                    msg = 'Error duirng bee table.'
+            except:
+                msg = 'Error duirng image table.'
+
+        cursor.execute('SELECT * FROM bee')
+        bees = cursor.fetchall()
+        cursor.execute('SELECT * FROM image where primary_image = true')
+        images = cursor.fetchall()
+        for image in images:
+            image_data_base64 = base64.b64encode(image[1]).decode('utf-8')
+            processedImages.append([image[0], image_data_base64])
+
+        return render_template("guide.html",  bees=bees, processedImages=processedImages, position_type_id=position_type_id, msg=msg)
+
+    else:
+        cursor.execute('SELECT * FROM bee')
+        bees = cursor.fetchall()
+        cursor.execute('SELECT * FROM image where primary_image = true')
+        images = cursor.fetchall()
+        for image in images:
+            image_data_base64 = base64.b64encode(image[1]).decode('utf-8')
+            processedImages.append([image[0], image_data_base64])
+
+        return render_template("guide.html",  bees=bees, processedImages=processedImages, position_type_id=position_type_id)
+
+# if request.form['firstname-update-staff'] != '' else account[2]
+
+
+@ app.route('/update/bee/<id>', methods=['POST'])
+def updatebee(id=None):
+    cursor = getCursor()
+    position_type_id = session['position_type_id']
+    processedImages = []
+
+    if id != None and request.method == 'POST':
+        cursor.execute('SELECT * FROM bee WHERE bee_id = %s', (id,))
+        bee = list(cursor.fetchone())
+
+        cursor.execute(
+            'SELECT * FROM image where primary_image = true and image_id = %s', (bee[8],))
+        images = list(cursor.fetchone())
+
+        beetype = request.form['beetype-update'] if request.form['beetype-update'] != '' else bee[1]
+        present = request.form['present-update'] if request.form['present-update'] != '' else bee[2]
+        if present == 1:
+            presentvalue = True
+        else:
+            presentvalue = False
+        commonname = request.form['commonname-update'] if request.form['commonname-update'] != '' else bee[3]
+        scientificname = request.form['scientificname-update'] if request.form['scientificname-update'] != '' else bee[4]
+        keycharacteristics = request.form['keycharacteristics-update'] if request.form['keycharacteristics-update'] != '' else bee[5]
+        biology = request.form['biology-update'] if request.form['biology-update'] != '' else bee[6]
+        symptoms = request.form['symptoms-update'] if request.form['symptoms-update'] != '' else bee[7]
+        file = request.files['image-update'] if request.files['image-update'] != '' else bee[8]
+        image_data = file.read()
+
+        try:
+            cursor.execute(
+                'UPDATE image SET image_data = %s WHERE image_id = %s', (image_data, images[0],))
+            try:
+                cursor.execute(
+                    'UPDATE bee SET item_type_id = %s, present_in_NZ= %s, common_name= %s, scientific_name= %s, key_characteristics = %s,biology = %s,symptoms= %s, image_id = %s WHERE bee_id = %s',
+                    (beetype, presentvalue, commonname, scientificname, keycharacteristics, biology, symptoms, images[0], bee[0],))
+                msg = 'Table bee and image updated successfully!'
+            except:
+                msg = " Error occure Updating bee table!"
+        except:
+            msg = " Error occure Updating iamge table!"
+
+    cursor.execute('SELECT * FROM bee')
+    bees = cursor.fetchall()
+    cursor.execute('SELECT * FROM image where primary_image = true')
+    images = cursor.fetchall()
+    for image in images:
+        image_data_base64 = base64.b64encode(image[1]).decode('utf-8')
+        processedImages.append([image[0], image_data_base64])
+
+    return render_template("guide.html",  bees=bees, processedImages=processedImages, position_type_id=position_type_id, msg=msg)
+
+
+@ app.route('/delete/bee/<id>', methods=['POST'])
+def deletebee(id=None):
+    position_type_id = session['position_type_id']
+    processedImages = []
+    if id != None and request.method == 'POST':
+        cursor = getCursor()
+        cursor.execute('SELECT image_id FROM bee WHERE bee_id = %s', (id,))
+        imageid = cursor.fetchone()
+        try:
+            cursor.execute(
+                'DELETE FROM image WHERE image_id = %s', (imageid[0],))
+            msg = "Successfully Deleted."
+        except:
+            msg = "Something wrong within the deletion in Image Table."
+
+    cursor.execute('SELECT * FROM bee')
+    bees = cursor.fetchall()
+    cursor.execute('SELECT * FROM image where primary_image = true')
+    images = cursor.fetchall()
+    for image in images:
+        image_data_base64 = base64.b64encode(image[1]).decode('utf-8')
+        processedImages.append([image[0], image_data_base64])
+
+    return render_template("guide.html",  bees=bees, processedImages=processedImages, position_type_id=position_type_id, msg=msg)
+
+
+@ app.route('/logout')
 def logout():
     session.pop('Username', None)
     session.pop('loggedin', False)

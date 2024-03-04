@@ -163,7 +163,6 @@
                             </td>
                         </tr>
                         {% endfor %}
-                        
                     </tbody>
                 </table>
             
@@ -239,6 +238,11 @@
                     </tbody>
                 </table>
             
+        </div>
+        <div class="d-flex">
+            <button type="button" class="btn btn-primary d-block mt-2" id="view-guide">
+             View Guide
+            </button>
         </div>
     </div>
     
@@ -647,6 +651,17 @@
                 //console.log(document.getElementById('updateFromWithId').attributes.action)
             });
         });
+    });
+
+    // View Guide
+    document.addEventListener('DOMContentLoaded', function () {
+    var viewGuideButton = document.querySelector('#view-guide'); // Use querySelector for ID
+
+    if (viewGuideButton) { // Check if the element exists
+      viewGuideButton.addEventListener('click', function() {
+        window.location.href = '/guide'; // Redirect to /guide
+      });
+    }
     });
 </script>
 
