@@ -223,10 +223,10 @@
                             
                             <td>
                                 <div class="d-flex justify-content-center">
-                                    <button type="button" class="btn btn-warning mx-auto d-block update-btn" data-bs-toggle="modal" data-bs-target="#updatestaffForm" data-staff-id="{{ staff[0] }}">
+                                    <button type="button" class="btn btn-warning mx-auto d-block update-btn_staff" data-bs-toggle="modal" data-bs-target="#updatestaffForm" data-staff-id="{{ staff[0] }}">
                                         Update
                                     </button>
-                                    <button type="button" class="btn btn-danger mx-auto d-block delete-btn" data-bs-toggle="modal" data-bs-target="#deletestaffFrom" data-staff-id="{{ staff[0] }}">
+                                    <button type="button" class="btn btn-danger mx-auto d-block delete-btn_staff" data-bs-toggle="modal" data-bs-target="#deletestaffFrom" data-staff-id="{{ staff[0] }}">
                                         Delete
                                     </button>
                                 </div>
@@ -262,32 +262,32 @@
                 <form method="POST" action = "/admindisplay">
                     <div class="mb-3">
                       <label class="form-label">First Name</label>
-                      <input type="text" class="form-control" id="firstname" name="firstname" placeholder="Firstname" />
+                      <input type="text" class="form-control" id="firstname_u" name="firstname_u" placeholder="Firstname" />
                     </div>
 
                     <div class="mb-3">
                       <label class="form-label">Last Name</label>
-                      <input type="text" class="form-control" id="lastname" name="lastname" placeholder="Lastname" />
+                      <input type="text" class="form-control" id="lastname_u" name="lastname_u" placeholder="Lastname" />
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label">Password</label>
-                        <input type="password" class="form-control" id="password" name="password" placeholder="Password" />
+                        <input type="password" class="form-control" id="password_u" name="password_u" placeholder="Password" />
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label">Email Address</label>
-                        <input type="text" class="form-control" id="email" name="email" placeholder="Email" />
+                        <input type="text" class="form-control" id="email_u" name="email_u" placeholder="Email" />
                     </div>
 
                     <div class="mb-3">
                       <label class="form-label">Phone</label>
-                      <input type="text" class="form-control" id="phone" name="phone" placeholder="Phone" />
+                      <input type="text" class="form-control" id="phone_u" name="phone_u" placeholder="Phone" />
                     </div>
 
                     <div class="mb-3">
                     <label class="form-label">Department</label>
-                    <input type="text" class="form-control" id="department" name="department" placeholder="Department" />
+                    <input type="text" class="form-control" id="department_u" name="department_u" placeholder="Department" />
                     </div>
 
                     <div class="modal-footer d-block">
@@ -465,7 +465,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form method="POST" id = "updateFromWithId" action = "/staffupdate">
+                <form method="POST" id = "updatestaffFromWithId" action = "/admin/update/staff/">
                     <div class="mb-3">
                       <label class="form-label">First Name</label>
                       <input type="text" class="form-control" id="firstname-update-staff" name="firstname-update-staff" placeholder="Firstname" />
@@ -525,7 +525,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="adminModalLabel">Add Apiarist Infomation</h5>
+                <h5 class="modal-title" id="adminModalLabel">Add Staff Infomation</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -621,11 +621,11 @@
 
     // Delete Staff 
     document.addEventListener('DOMContentLoaded', function () {
-        var deleteButtons = document.querySelectorAll('.delete-btn');
+        var deleteButtons = document.querySelectorAll('.delete-btn_staff');
         deleteButtons.forEach(function(button) {
             button.addEventListener('click', function() {
                 var staffId = this.getAttribute('data-staff-id');
-                console.log("a", apiaristId)
+                console.log("a", staffId)
                 var newAction = '/admin/delete/staff/' + staffId;
                 console.log("newAction",newAction)
                 // Select the form by its ID and update its action attribute
@@ -638,17 +638,15 @@
 
      // Update Staff
      document.addEventListener('DOMContentLoaded', function () {
-        var deleteButtons = document.querySelectorAll('.update-btn');
+        var deleteButtons = document.querySelectorAll('.update-btn_staff');
         deleteButtons.forEach(function(button) {
             button.addEventListener('click', function() {
                 var staffId = this.getAttribute('data-staff-id');
-                console.log("a", apiaristId)
+                console.log("a", staffId)
                 var newAction = '/admin/update/staff/' + staffId;
                 console.log("newAction",newAction)
-                // Select the form by its ID and update its action attribute
-                //console.log(document.getElementById('updateFromWithId').attributes.action.textContent)
-                document.getElementById('updateFromWithId').attributes.action.textContent = newAction;
-                //console.log(document.getElementById('updateFromWithId').attributes.action)
+                document.getElementById('updatestaffFromWithId').attributes.action.textContent = newAction;
+                
             });
         });
     });

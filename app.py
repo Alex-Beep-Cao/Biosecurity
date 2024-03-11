@@ -33,23 +33,10 @@ def getCursor():
     return dbconn
 
 
-# @app.route('/')
-# @app.route('/home')
-# def home():
-#     hashed = hashing.hash_value('123', salt='alex')
-#     print(hashed)
-#     return render_template("base.html")
-
 @app.route('/')
 @app.route('/home')
 @app.route('/login', methods=['GET', 'POST'])
-def login(): \
-        # alex
-    # alex1
-    # alex2
-    # p1 = "alex2"
-    # hashed = hashing.hash_value(p1, salt='alex')
-    # print(hashed)
+def login():
     msg = ''
     if request.method == 'POST' and 'username' in request.form and 'password' in request.form:
         username = request.form['username']
@@ -113,16 +100,16 @@ def register():
             msg = 'Invalid email address!'
         elif not re.match(r'[A-Za-z0-9]+', username):
             msg = 'Username must contain only characters and numbers!'
-        # elif not len(password) > 8:
-        #     msg = 'Password must be at least 8 characters long!'
-        # elif not re.search(r'[A-Z]', password):
-        #     msg = 'Password must contain at least one uppercase letter!'
-        # elif not re.search(r'[a-z]', password):
-        #     msg = 'Password must contain at least one lowercase letter!'
-        # elif not re.search(r'[0-9]', password):
-        #     msg = 'Password must contain at least one digit!'
-        # elif not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
-        #     msg = 'Password must contain at least one special character!'
+        elif not len(password) > 8:
+            msg = 'Password must be at least 8 characters long!'
+        elif not re.search(r'[A-Z]', password):
+            msg = 'Password must contain at least one uppercase letter!'
+        elif not re.search(r'[a-z]', password):
+            msg = 'Password must contain at least one lowercase letter!'
+        elif not re.search(r'[0-9]', password):
+            msg = 'Password must contain at least one digit!'
+        elif not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
+            msg = 'Password must contain at least one special character!'
         elif repeartpassword != password:
             msg = 'Password not match!'
         else:
@@ -167,27 +154,30 @@ def apiaristdisplay():
             msg = 'Account not exists!'
         elif not re.match(r'[^@]+@[^@]+\.[^@]+', email):
             msg = 'Invalid email address!'
-        # elif not len(password) > 8:
-        #     msg = 'Password must be at least 8 characters long!'
-        # elif not re.search(r'[A-Z]', password):
-        #     msg = 'Password must contain at least one uppercase letter!'
-        # elif not re.search(r'[a-z]', password):
-        #     msg = 'Password must contain at least one lowercase letter!'
-        # elif not re.search(r'[0-9]', password):
-        #     msg = 'Password must contain at least one digit!'
-        # elif not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
-        #     msg = 'Password must contain at least one special character!'
+        elif not len(password) > 8:
+            msg = 'Password must be at least 8 characters long!'
+        elif not re.search(r'[A-Z]', password):
+            msg = 'Password must contain at least one uppercase letter!'
+        elif not re.search(r'[a-z]', password):
+            msg = 'Password must contain at least one lowercase letter!'
+        elif not re.search(r'[0-9]', password):
+            msg = 'Password must contain at least one digit!'
+        elif not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
+            msg = 'Password must contain at least one special character!'
         else:
             hashed = hashing.hash_value(password, salt='alex')
             cursor.execute(
                 'UPDATE apiarist SET first_name = %s, last_name = %s, plain_password = %s, address = %s, email = %s, phone_number = %s WHERE apiarist_id = %s', (firstname, lastname, password, address, email, phone, user_id))
             cursor.execute(
-                'UPDATE users SET hashed_password= %s, email=%s WHERE user_id = %s position_type_id = 1', (
+                'UPDATE users SET hashed_password= %s, email=%s WHERE user_id = %s and position_type_id = 1', (
                     hashed, email, user_id)
             )
-            personal_details = [account[1], firstname,
-                                lastname, address, email, phone]
-            msg = " Updated"
+
+            msg = " Updated successfully !"
+
+        cursor.execute(
+            'SELECT * FROM apiarist WHERE apiarist_id = %s', (user_id,))
+        personal_details = cursor.fetchone()
 
         return render_template("apiaristdisplay.html", personal_details=personal_details, msg=msg)
     else:
@@ -207,12 +197,11 @@ def apiaristdisplay():
         connection.commit()
         return render_template("apiaristdisplay.html", personal_details=personal_details, msg=msg)
 
-# staff display
-
 
 @app.route('/staffdisplay', methods=['GET', 'POST'])
 def staffdisplay():
     msg = ''
+
     # Staff update their own information
     if request.method == 'POST':
         user_id = session['id']
@@ -221,28 +210,28 @@ def staffdisplay():
             'SELECT * FROM employee WHERE employee_id = %s and position_type_id = 2', (user_id,))
         account = cursor.fetchone()
 
-        firstname = request.form['firstname'] if request.form['firstname'] != '' else account[2]
-        lastname = request.form['lastname'] if request.form['lastname'] != '' else account[3]
-        password = request.form['password'] if request.form['password'] != '' else account[4]
-        email = request.form['email'] if request.form['email'] != '' else account[5]
-        phone = request.form['phone'] if request.form['phone'] != '' else account[6]
-        department = request.form['department'] if request.form['department'] != '' else account[8]
+        firstname = request.form['firstname_u'] if request.form['firstname_u'] != '' else account[2]
+        lastname = request.form['lastname_u'] if request.form['lastname_u'] != '' else account[3]
+        password = request.form['password_u'] if request.form['password_u'] != '' else account[4]
+        email = request.form['email_u'] if request.form['email_u'] != '' else account[5]
+        phone = request.form['phone_u'] if request.form['phone_u'] != '' else account[6]
+        department = request.form['department_u'] if request.form['department_u'] != '' else account[8]
 
         # If account exists show error and validation checks
         if not account:
             msg = 'Account not exists!'
         elif not re.match(r'[^@]+@[^@]+\.[^@]+', email):
             msg = 'Invalid email address!'
-        # elif not len(password) > 8:
-        #     msg = 'Password must be at least 8 characters long!'
-        # elif not re.search(r'[A-Z]', password):
-        #     msg = 'Password must contain at least one uppercase letter!'
-        # elif not re.search(r'[a-z]', password):
-        #     msg = 'Password must contain at least one lowercase letter!'
-        # elif not re.search(r'[0-9]', password):
-        #     msg = 'Password must contain at least one digit!'
-        # elif not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
-        #     msg = 'Password must contain at least one special character!'
+        elif not len(password) > 8:
+            msg = 'Password must be at least 8 characters long!'
+        elif not re.search(r'[A-Z]', password):
+            msg = 'Password must contain at least one uppercase letter!'
+        elif not re.search(r'[a-z]', password):
+            msg = 'Password must contain at least one lowercase letter!'
+        elif not re.search(r'[0-9]', password):
+            msg = 'Password must contain at least one digit!'
+        elif not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
+            msg = 'Password must contain at least one special character!'
         else:
             hashed = hashing.hash_value(password, salt='alex')
 
@@ -252,13 +241,18 @@ def staffdisplay():
                 'UPDATE users SET hashed_password= %s, email=%s WHERE user_id = %s and position_type_id = 2', (
                     hashed, email, user_id)
             )
-            personal_details = [account[1], firstname,
-                                lastname, email, phone, department]
-            msg = " Updated"
-            cursor.execute(
-                'SELECT apiarist_id, username, first_name, last_name, plain_password,address, email, phone_number, date_joined, employee_status FROM apiarist'
-            )
-            apiarist_detail = cursor.fetchall()
+
+            msg = 'You have successfully updated your details!'
+
+        cursor.execute(
+            'SELECT * FROM employee WHERE employee_id = %s and position_type_id = 2', (user_id,))
+
+        personal_details = cursor.fetchone()
+
+        cursor.execute(
+            'SELECT apiarist_id, username, first_name, last_name, plain_password,address, email, phone_number, date_joined, employee_status FROM apiarist'
+        )
+        apiarist_detail = cursor.fetchall()
 
         return render_template("staffdisplay.html", personal_details=personal_details, apiarist_detail=apiarist_detail, msg=msg)
     else:
@@ -284,169 +278,8 @@ def staffdisplay():
         connection.commit()
         return render_template("staffdisplay.html", personal_details=personal_details, apiarist_detail=apiarist_detail, msg=msg)
 
-# staff delete apiarist
-# @app.route('/staff/delete/<id>', methods=['GET', 'POST'])
-# def staffdelete(id):
-#     user_id = session['id']
-#     position_type_id = session['position_type_id']
-
-#     if id:
-#         cursor = getCursor()
-#         try:
-#             cursor.execute(
-#                 'DELETE FROM users WHERE user_id = %s and position_type_id = 1', (id,))
-#             try:
-#                 cursor.execute(
-#                     'DELETE FROM apiarist WHERE apiarist_id = %s', (id,))
-#             except:
-#                 msg = "Something wrong within the deletion in apiarist Table."
-#             msg = "Successfully Deleted."
-#         except:
-#             msg = "Something wrong within the deletion in User Table."
-
-#         cursor.execute(
-#             'SELECT * FROM employee WHERE employee_id = %s and position_type_id = %s', (user_id, position_type_id,))
-#         personal_details = cursor.fetchone()
-
-#         cursor.execute(
-#             'SELECT apiarist_id, username, first_name, last_name, plain_password,address, email, phone_number, date_joined, employee_status FROM apiarist'
-#         )
-#         apiarist_detail = cursor.fetchall()
-
-#     return render_template("staffdisplay.html", personal_details=personal_details, apiarist_detail=apiarist_detail, msg=msg)
-
-# staff udpate apiarist
-# @app.route('/staff/update/<id>', methods=['GET', 'POST'])
-# def staffupdate(id):
-#     user_id = session['id']
-#     position_type_id = session['position_type_id']
-
-#     # Staff level update apiarist
-#     if id:
-#         cursor = getCursor()
-#         cursor.execute('SELECT * FROM apiarist WHERE apiarist_id = %s', (id,))
-#         account = cursor.fetchone()
-#         apiarist_id = account[0]
-
-#         firstname = request.form['firstname-update'] if request.form['firstname-update'] != '' else account[2]
-#         lastname = request.form['lastname-update'] if request.form['lastname-update'] != '' else account[3]
-#         password = request.form['password-update'] if request.form['password-update'] != '' else account[4]
-#         address = request.form['address-update'] if request.form['address-update'] != '' else account[5]
-#         email = request.form['email-update'] if request.form['email-update'] != '' else account[6]
-#         phone = request.form['phone-update'] if request.form['phone-update'] != '' else account[7]
-#         status = request.form['status-update'] if request.form['status-update'] != '' else account[9]
-
-#         # If account exists show error and validation checks
-#         if not account:
-#             msg = 'Account not exists!'
-#         elif not re.match(r'[^@]+@[^@]+\.[^@]+', email):
-#             msg = 'Invalid email address!'
-#         # elif not len(password) > 8:
-#         #     msg = 'Password must be at least 8 characters long!'
-#         # elif not re.search(r'[A-Z]', password):
-#         #     msg = 'Password must contain at least one uppercase letter!'
-#         # elif not re.search(r'[a-z]', password):
-#         #     msg = 'Password must contain at least one lowercase letter!'
-#         # elif not re.search(r'[0-9]', password):
-#         #     msg = 'Password must contain at least one digit!'
-#         # elif not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
-#         #     msg = 'Password must contain at least one special character!'
-#         elif status not in (0, 1):
-#             msg = 'Status must be 0 or 1!'
-#         else:
-#             hashed = hashing.hash_value(password, salt='alex')
-#             try:
-#                 cursor.execute(
-#                     'UPDATE apiarist SET first_name = %s, last_name = %s, plain_password = %s, address = %s, email = %s, phone_number = %s, employee_status = %s WHERE apiarist_id = %s', (firstname, lastname, password, address, email, phone, status, apiarist_id))
-#                 try:
-#                     cursor.execute(
-#                         'UPDATE users SET hashed_password= %s, email=%s WHERE user_id = %s position_type_id = 1', (hashed, email, apiarist_id))
-#                 except:
-#                     msg = " Update User table error!"
-#             except:
-#                 msg = " Update Apiarist table error!"
-
-#             msg = " Updated"
-#             cursor.execute(
-#                 'SELECT * FROM employee WHERE employee_id = %s and position_type_id = %s', (user_id, position_type_id,))
-#             personal_details = cursor.fetchone()
-
-#             cursor.execute(
-#                 'SELECT apiarist_id, username, first_name, last_name, plain_password,address, email, phone_number, date_joined, employee_status FROM apiarist'
-#             )
-#             apiarist_detail = cursor.fetchall()
-
-#     return render_template("staffdisplay.html", personal_details=personal_details, apiarist_detail=apiarist_detail, msg=msg)
-
-# staff add apiarist
-# @app.route('/staff/add', methods=['GET', 'POST'])
-# def staffadd():
-#     user_id = session['id']
-#     position_type_id = session['position_type_id']
-#     msg = ''
-#     if request.method == 'POST' and 'username' in request.form and 'password' in request.form and 'email' in request.form:
-#         username = request.form['username']
-#         firstname = request.form['firstname']
-#         lastname = request.form['lastname']
-#         password = request.form['password']
-#         address = request.form['address']
-#         email = request.form['email']
-#         phone = request.form['phone']
-#         status = request.form['status']
-
-#         cursor = getCursor()
-#         cursor.execute(
-#             'SELECT * FROM apiarist WHERE username = %s', (username,))
-#         account = cursor.fetchone()
-#         # If account exists show error and validation checks
-#         if account:
-#             msg = 'Account already exists!'
-#         elif not re.match(r'[^@]+@[^@]+\.[^@]+', email):
-#             msg = 'Invalid email address!'
-#         elif not re.match(r'[A-Za-z0-9]+', username):
-#             msg = 'Username must contain only characters and numbers!'
-#         # elif not len(password) > 8:
-#         #     msg = 'Password must be at least 8 characters long!'
-#         # elif not re.search(r'[A-Z]', password):
-#         #     msg = 'Password must contain at least one uppercase letter!'
-#         # elif not re.search(r'[a-z]', password):
-#         #     msg = 'Password must contain at least one lowercase letter!'
-#         # elif not re.search(r'[0-9]', password):
-#         #     msg = 'Password must contain at least one digit!'
-#         # elif not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
-#         #     msg = 'Password must contain at least one special character!'
-#         else:
-#             # Account doesnt exists and the form data is valid, now insert new account into accounts table
-#             hashed = hashing.hash_value(password, salt='alex')
-#             try:
-#                 cursor.execute(
-#                     'INSERT INTO apiarist VALUES (NULL, %s, %s, %s,%s, %s,%s ,%s, %s,%s ,%s)', (username, firstname, lastname, password, address, email, phone, date.today(), status, 1))
-#                 try:
-#                     cursor.execute(
-#                         'SELECT apiarist_id FROM apiarist WHERE username = %s', (username,))
-#                     apiarist_id = cursor.fetchone()
-#                     cursor.execute('INSERT INTO users VALUES (%s, %s, %s, %s, %s)',
-#                                    (apiarist_id[0], username, hashed, email, 1,))
-#                 except:
-#                     msg = 'Error occur duing insert data in Apiarist table!'
-#             except:
-#                 msg = 'Error occur duing insert data in User table!'
-
-#             msg = 'Apiarist successfully created!'
-#             cursor.execute(
-#                 'SELECT * FROM employee WHERE employee_id = %s and position_type_id = %s', (user_id, position_type_id,))
-#             personal_details = cursor.fetchone()
-
-#             cursor.execute(
-#                 'SELECT apiarist_id, username, first_name, last_name, plain_password,address, email, phone_number, date_joined, employee_status FROM apiarist'
-#             )
-#             apiarist_detail = cursor.fetchall()
-#             connection.commit()
-
-#         return render_template("staffdisplay.html", personal_details=personal_details, apiarist_detail=apiarist_detail, msg=msg)
 
 # admin display
-
 
 @app.route('/admindisplay', methods=['GET', 'POST'])
 def admindisplay():
@@ -459,28 +292,28 @@ def admindisplay():
             'SELECT * FROM employee WHERE employee_id = %s and position_type_id = 3', (user_id,))
         account = cursor.fetchone()
 
-        firstname = request.form['firstname'] if request.form['firstname'] != '' else account[2]
-        lastname = request.form['lastname'] if request.form['lastname'] != '' else account[3]
-        password = request.form['password'] if request.form['password'] != '' else account[4]
-        email = request.form['email'] if request.form['email'] != '' else account[5]
-        phone = request.form['phone'] if request.form['phone'] != '' else account[6]
-        department = request.form['department'] if request.form['department'] != '' else account[8]
+        firstname = request.form['firstname_u'] if request.form['firstname_u'] != '' else account[2]
+        lastname = request.form['lastname_u'] if request.form['lastname_u'] != '' else account[3]
+        password = request.form['password_u'] if request.form['password_u'] != '' else account[4]
+        email = request.form['email_u'] if request.form['email_u'] != '' else account[5]
+        phone = request.form['phone_u'] if request.form['phone_u'] != '' else account[6]
+        department = request.form['department_u'] if request.form['department_u'] != '' else account[8]
 
         # If account exists show error and validation checks
         if not account:
             msg = 'Account not exists!'
         elif not re.match(r'[^@]+@[^@]+\.[^@]+', email):
             msg = 'Invalid email address!'
-        # elif not len(password) > 8:
-        #     msg = 'Password must be at least 8 characters long!'
-        # elif not re.search(r'[A-Z]', password):
-        #     msg = 'Password must contain at least one uppercase letter!'
-        # elif not re.search(r'[a-z]', password):
-        #     msg = 'Password must contain at least one lowercase letter!'
-        # elif not re.search(r'[0-9]', password):
-        #     msg = 'Password must contain at least one digit!'
-        # elif not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
-        #     msg = 'Password must contain at least one special character!'
+        elif not len(password) > 8:
+            msg = 'Password must be at least 8 characters long!'
+        elif not re.search(r'[A-Z]', password):
+            msg = 'Password must contain at least one uppercase letter!'
+        elif not re.search(r'[a-z]', password):
+            msg = 'Password must contain at least one lowercase letter!'
+        elif not re.search(r'[0-9]', password):
+            msg = 'Password must contain at least one digit!'
+        elif not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
+            msg = 'Password must contain at least one special character!'
         else:
             hashed = hashing.hash_value(password, salt='alex')
 
@@ -490,11 +323,24 @@ def admindisplay():
                 'UPDATE users SET hashed_password= %s, email=%s WHERE user_id = %s and position_type_id = 3', (
                     hashed, email, user_id)
             )
-            personal_details = [account[1], firstname,
-                                lastname, email, phone, department]
             msg = " Updated"
 
-        return render_template("staffdisplay.html", personal_details=personal_details, msg=msg)
+        cursor.execute(
+            'SELECT * FROM employee WHERE employee_id = %s and position_type_id = 3', (user_id,))
+
+        personal_details = cursor.fetchone()
+
+        cursor.execute(
+            'SELECT * FROM employee WHERE  position_type_id = 2')
+
+        staff_detail = cursor.fetchall()
+
+        cursor.execute(
+            'SELECT * FROM apiarist'
+        )
+        apiarist_detail = cursor.fetchall()
+
+        return render_template("admindisplay.html", personal_details=personal_details,  apiarist_detail=apiarist_detail, staff_detail=staff_detail, msg=msg)
     else:
         # Admin can see apiarists and staffs
         msg = ''
@@ -572,10 +418,11 @@ def admindeletestaff(id):
                 'DELETE FROM users WHERE user_id = %s and position_type_id = 2', (id,))
             try:
                 cursor.execute(
-                    'DELETE FROM employee WHERE empolyee_id = %s and position_type_id = 2', (id,))
+                    'DELETE FROM employee WHERE employee_id = %s and position_type_id = 2', (id,))
+                msg = "Successfully Deleted."
             except:
                 msg = "Something wrong within the deletion in employee Table."
-            msg = "Successfully Deleted."
+
         except:
             msg = "Something wrong within the deletion in User Table."
 
@@ -623,17 +470,17 @@ def adminupdate(id):
             msg = 'Account not exists!'
         elif not re.match(r'[^@]+@[^@]+\.[^@]+', email):
             msg = 'Invalid email address!'
-        # elif not len(password) > 8:
-        #     msg = 'Password must be at least 8 characters long!'
-        # elif not re.search(r'[A-Z]', password):
-        #     msg = 'Password must contain at least one uppercase letter!'
-        # elif not re.search(r'[a-z]', password):
-        #     msg = 'Password must contain at least one lowercase letter!'
-        # elif not re.search(r'[0-9]', password):
-        #     msg = 'Password must contain at least one digit!'
-        # elif not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
-        #     msg = 'Password must contain at least one special character!'
-        elif status not in (0, 1):
+        elif not len(password) > 8:
+            msg = 'Password must be at least 8 characters long!'
+        elif not re.search(r'[A-Z]', password):
+            msg = 'Password must contain at least one uppercase letter!'
+        elif not re.search(r'[a-z]', password):
+            msg = 'Password must contain at least one lowercase letter!'
+        elif not re.search(r'[0-9]', password):
+            msg = 'Password must contain at least one digit!'
+        elif not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
+            msg = 'Password must contain at least one special character!'
+        elif int(status) != 0 and int(status) != 1:
             msg = 'Status must be 0 or 1!'
         else:
             hashed = hashing.hash_value(password, salt='alex')
@@ -663,7 +510,7 @@ def adminupdate(id):
             )
             staff_detail = cursor.fetchall()
 
-    return render_template("staffdisplay.html", personal_details=personal_details, apiarist_detail=apiarist_detail, staff_detail=staff_detail, msg=msg)
+    return render_template("admindisplay.html", personal_details=personal_details, apiarist_detail=apiarist_detail, staff_detail=staff_detail, msg=msg)
 
 # admin update staff
 
@@ -673,10 +520,11 @@ def adminupdatestaff(id):
     user_id = session['id']
     position_type_id = session['position_type_id']
 
-    # Admin level update apiarist
     if id:
         cursor = getCursor()
-        cursor.execute('SELECT * FROM apiarist WHERE apiarist_id = %s', (id,))
+        cursor.execute(
+
+            'SELECT * FROM employee WHERE employee_id = %s and position_type_id = 2', (id,))
         account = cursor.fetchone()
         employee_id = account[0]
 
@@ -704,13 +552,13 @@ def adminupdatestaff(id):
         #     msg = 'Password must contain at least one digit!'
         # elif not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
         #     msg = 'Password must contain at least one special character!'
-        elif status not in (0, 1):
+        elif int(status) != 0 and int(status) != 1:
             msg = 'Status must be 0 or 1!'
         else:
             hashed = hashing.hash_value(password, salt='alex')
             try:
                 cursor.execute(
-                    'UPDATE employee SET first_name = %s, last_name = %s, plain_password = %s, email = %s, phone_number = %s, hire_date = %s, department = %s, employee_status = %s WHERE apiarist_id = %s', (firstname, lastname, password,  email, phone, hiredate, department, status, employee_id))
+                    'UPDATE employee SET first_name = %s, last_name = %s, plain_password = %s, email = %s, phone_number = %s, hire_date = %s, department = %s, employee_status = %s WHERE employee_id = %s', (firstname, lastname, password,  email, phone, hiredate, department, status, employee_id))
                 try:
                     cursor.execute(
                         'UPDATE users SET hashed_password= %s, email=%s WHERE user_id = %s position_type_id = 2', (hashed, email, employee_id))
@@ -720,21 +568,22 @@ def adminupdatestaff(id):
                 msg = " Update Apiarist table error!"
 
             msg = " Updated"
-            cursor.execute(
-                'SELECT * FROM employee WHERE employee_id = %s and position_type_id = %s', (user_id, position_type_id,))
-            personal_details = cursor.fetchone()
 
-            cursor.execute(
-                'SELECT apiarist_id, username, first_name, last_name, plain_password,address, email, phone_number, date_joined, employee_status FROM apiarist'
-            )
-            apiarist_detail = cursor.fetchall()
+        cursor.execute(
+            'SELECT * FROM employee WHERE employee_id = %s and position_type_id = %s', (user_id, position_type_id,))
+        personal_details = cursor.fetchone()
 
-            cursor.execute(
-                'SELECT employee_id, username, first_name, last_name, plain_password, email, phone_number, hire_date, department, employee_status FROM employee where position_type_id = 2'
-            )
-            staff_detail = cursor.fetchall()
+        cursor.execute(
+            'SELECT apiarist_id, username, first_name, last_name, plain_password,address, email, phone_number, date_joined, employee_status FROM apiarist'
+        )
+        apiarist_detail = cursor.fetchall()
 
-    return render_template("staffdisplay.html", personal_details=personal_details, apiarist_detail=apiarist_detail, staff_detail=staff_detail, msg=msg)
+        cursor.execute(
+            'SELECT employee_id, username, first_name, last_name, plain_password, email, phone_number, hire_date, department, employee_status FROM employee where position_type_id = 2'
+        )
+        staff_detail = cursor.fetchall()
+
+    return render_template("admindisplay.html", personal_details=personal_details, apiarist_detail=apiarist_detail, staff_detail=staff_detail, msg=msg)
 
 # admin add apiarist
 
@@ -765,16 +614,16 @@ def adminadd():
             msg = 'Invalid email address!'
         elif not re.match(r'[A-Za-z0-9]+', username):
             msg = 'Username must contain only characters and numbers!'
-        # elif not len(password) > 8:
-        #     msg = 'Password must be at least 8 characters long!'
-        # elif not re.search(r'[A-Z]', password):
-        #     msg = 'Password must contain at least one uppercase letter!'
-        # elif not re.search(r'[a-z]', password):
-        #     msg = 'Password must contain at least one lowercase letter!'
-        # elif not re.search(r'[0-9]', password):
-        #     msg = 'Password must contain at least one digit!'
-        # elif not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
-        #     msg = 'Password must contain at least one special character!'
+        elif not len(password) > 8:
+            msg = 'Password must be at least 8 characters long!'
+        elif not re.search(r'[A-Z]', password):
+            msg = 'Password must contain at least one uppercase letter!'
+        elif not re.search(r'[a-z]', password):
+            msg = 'Password must contain at least one lowercase letter!'
+        elif not re.search(r'[0-9]', password):
+            msg = 'Password must contain at least one digit!'
+        elif not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
+            msg = 'Password must contain at least one special character!'
         else:
             # Account doesnt exists and the form data is valid, now insert new account into accounts table
             hashed = hashing.hash_value(password, salt='alex')
@@ -814,7 +663,7 @@ def adminaddstaff():
     user_id = session['id']
     position_type_id = session['position_type_id']
     msg = ''
-    if request.method == 'POST' and 'username' in request.form and 'password' in request.form and 'email' in request.form:
+    if request.method == 'POST':
         username = request.form['username-add-staff']
         firstname = request.form['firstname-add-staff']
         lastname = request.form['lastname-add-staff']
@@ -822,7 +671,7 @@ def adminaddstaff():
         email = request.form['email-add-staff']
         phone = request.form['phone-add-staff']
         hiredate = request.form['hiredate-add-staff']
-        department = request.form['department-add-stafff']
+        department = request.form['department-add-staff']
         status = request.form['status-add-staff']
 
         cursor = getCursor()
@@ -836,16 +685,16 @@ def adminaddstaff():
             msg = 'Invalid email address!'
         elif not re.match(r'[A-Za-z0-9]+', username):
             msg = 'Username must contain only characters and numbers!'
-        # elif not len(password) > 8:
-        #     msg = 'Password must be at least 8 characters long!'
-        # elif not re.search(r'[A-Z]', password):
-        #     msg = 'Password must contain at least one uppercase letter!'
-        # elif not re.search(r'[a-z]', password):
-        #     msg = 'Password must contain at least one lowercase letter!'
-        # elif not re.search(r'[0-9]', password):
-        #     msg = 'Password must contain at least one digit!'
-        # elif not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
-        #     msg = 'Password must contain at least one special character!'
+        elif not len(password) > 8:
+            msg = 'Password must be at least 8 characters long!'
+        elif not re.search(r'[A-Z]', password):
+            msg = 'Password must contain at least one uppercase letter!'
+        elif not re.search(r'[a-z]', password):
+            msg = 'Password must contain at least one lowercase letter!'
+        elif not re.search(r'[0-9]', password):
+            msg = 'Password must contain at least one digit!'
+        elif not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
+            msg = 'Password must contain at least one special character!'
         else:
             # Account doesnt exists and the form data is valid, now insert new account into accounts table
             hashed = hashing.hash_value(password, salt='alex')
@@ -976,21 +825,13 @@ def updatebee(id=None):
         keycharacteristics = request.form['keycharacteristics-update'] if request.form['keycharacteristics-update'] != '' else bee[5]
         biology = request.form['biology-update'] if request.form['biology-update'] != '' else bee[6]
         symptoms = request.form['symptoms-update'] if request.form['symptoms-update'] != '' else bee[7]
-        file = request.files['image-update'] if request.files['image-update'] != '' else bee[8]
-        image_data = file.read()
-
         try:
             cursor.execute(
-                'UPDATE image SET image_data = %s WHERE image_id = %s', (image_data, images[0],))
-            try:
-                cursor.execute(
-                    'UPDATE bee SET item_type_id = %s, present_in_NZ= %s, common_name= %s, scientific_name= %s, key_characteristics = %s,biology = %s,symptoms= %s, image_id = %s WHERE bee_id = %s',
-                    (beetype, presentvalue, commonname, scientificname, keycharacteristics, biology, symptoms, images[0], bee[0],))
-                msg = 'Table bee and image updated successfully!'
-            except:
-                msg = " Error occure Updating bee table!"
+                'UPDATE bee SET item_type_id = %s, present_in_NZ= %s, common_name= %s, scientific_name= %s, key_characteristics = %s,biology = %s,symptoms= %s, image_id = %s WHERE bee_id = %s',
+                (beetype, presentvalue, commonname, scientificname, keycharacteristics, biology, symptoms, images[0], bee[0],))
+            msg = 'Table bee and image updated successfully!'
         except:
-            msg = " Error occure Updating iamge table!"
+            msg = " Error occure Updating bee table!"
 
     cursor.execute('SELECT * FROM bee')
     bees = cursor.fetchall()
