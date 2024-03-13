@@ -24,3 +24,13 @@ The system defines three primary user roles:
 - **View Guide**: Accessible by Apiarists and higher roles, showcasing primary images, common names, and presence status in NZ.
 - **Manage Guide**: Staff and Administrators can add, update, or delete guide entries, including detailed pest/disease information and images.
 
+## Passwords
+apiarist: alex_cao_a,alex_cao_b, alex_cao_c, alex_cao_d, alex_cao_e
+staff: ac_staff_1,ac_staff_2,ac_staff_3
+admin: ac_admin_1
+
+password: alex
+password for all ccount, All data are insert by scirpt so password format not align with the requirement but should be able to change in the UI "
+
+
+
